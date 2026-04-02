@@ -15,8 +15,10 @@ export VLLM_DISABLE_COMPILE_CACHE=1
 datasets=(polaris)
 model_name=Qwen2.5-3B-Instruct
 lr=1e-6
-# ranks=(8 16 32 64)
+# ranks=(8 16 32 64
+coeffs=(1e-5 1e-4 1e-3 1e-2)
 for dataset in "${datasets[@]}";do
+for coeff in "${coeffs[@]}";do
 
 python3 -m main \
     algorithm.adv_estimator=grpo \
@@ -32,6 +34,7 @@ python3 -m main \
     actor_rollout_ref.ref.strategy=fsdp2 \
     actor_rollout_ref.actor.strategy=fsdp2 \
     data.truncation=right \
+    actor_rollout_ref.actor.drift_loss_coef=${coeff} \
     actor_rollout_ref.model.path=models/${model_name} \
     actor_rollout_ref.actor.optim.lr=${lr} \
     actor_rollout_ref.actor.optim.optim_name='AdamW' \
@@ -55,7 +58,7 @@ python3 -m main \
     trainer.critic_warmup=0 \
     trainer.logger=['console']\
     trainer.project_name='RLVR-Peft' \
-    trainer.experiment_name=${model_name}-${dataset}-GRPO-DriftReg\
+    trainer.experiment_name=${model_name}-${dataset}-GRPO-DriftReg-${coeff}\
     reward_model.reward_manager=deepscaler \
     trainer.n_gpus_per_node=4 \
     trainer.val_before_train=False \
@@ -65,5 +68,6 @@ python3 -m main \
     trainer.total_training_steps=512\
     trainer.total_epochs=15 $@
 
+done
 # done
 done
