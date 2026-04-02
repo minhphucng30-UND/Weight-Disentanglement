@@ -270,7 +270,7 @@ class DriftRegActor(DataParallelPPOActor):
         temperature = data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
         use_dynamic_bsz = data.meta_info["use_dynamic_bsz"]
         has_multi_modal_inputs = "multi_modal_inputs" in data.non_tensor_batch.keys()
-        select_keys = ["responses", "input_ids", "attention_mask", "position_ids"]
+        select_keys = ["buffer_responses", "buffer_input_ids", "buffer_attention_mask", "buffer_position_ids"]
         non_tensor_select_keys = ["multi_modal_inputs"] if has_multi_modal_inputs else []
 
         data = data.select(batch_keys=select_keys, non_tensor_batch_keys=non_tensor_select_keys)
