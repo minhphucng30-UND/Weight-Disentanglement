@@ -274,6 +274,8 @@ class DriftRegActor(DataParallelPPOActor):
         non_tensor_select_keys = ["multi_modal_inputs"] if has_multi_modal_inputs else []
 
         data = data.select(batch_keys=select_keys, non_tensor_batch_keys=non_tensor_select_keys)
+        new_select_keys = ["responses", "input_ids", "attention_mask", "position_ids"]
+        data = data.rename(old_keys=select_keys, new_keys=new_select_keys)
 
         if use_dynamic_bsz:
             max_token_len = data.meta_info["max_token_len"] * self.ulysses_sequence_parallel_size
