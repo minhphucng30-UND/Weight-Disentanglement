@@ -57,7 +57,7 @@ python3 -m main \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger=['console']\
-    trainer.project_name='RLVR-Peft' \
+    trainer.project_name='RLVR-DriftReg' \
     trainer.experiment_name=${model_name}-${dataset}-GRPO-DriftReg-${coeff}\
     reward_model.reward_manager=deepscaler \
     trainer.n_gpus_per_node=4 \
