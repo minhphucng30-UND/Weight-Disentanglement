@@ -380,12 +380,16 @@ class RayDriftRegTrainer(RayPPOTrainer):
                     correct_idxs = batch.batch['token_level_scores'].sum(-1) == 1
                     correct_batch = batch.select_idxs(correct_idxs)
 
-                    self.buffer_dataloader.add_to_buffer(correct_batch)
+                    try:
+                        self.buffer_dataloader.add_to_buffer(correct_batch)
+                    except Exception as e:
+                        self.buffer_dataloader.buffer.meta_info["global_token_num"] = batch.meta_info["global_token_num"]
+                        self.buffer_dataloader.add_to_buffer(correct_batch)
+                    
                     if self.buffer_dataloader.buffer_size() < len(batch.batch):
                         buffer_batch = self.buffer_dataloader.get_next_batch()
                         buffer_batch: DataProto = DataProto.from_single_dict(buffer_batch)
                     else:
-                        self.buffer_dataloader.buffer.meta_info["global_token_num"] = batch.meta_info["global_token_num"]
                         buffer_batch = self.buffer_dataloader.get_from_buffer(len(batch.batch), size_divisor)
                     
                     all_keys = ["input_ids", "attention_mask", "position_ids", "responses", "response_mask"]
