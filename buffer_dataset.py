@@ -262,8 +262,8 @@ class BufferedDataLoader:
     def get_from_buffer(self, count, dp_size):
         if count > self.buffer_size():
             count = (self.buffer_size() // dp_size) * dp_size
-        samples = self.buffer.slice(range(0, count))
-        self.buffer = self.buffer.slice(range(count, self.buffer_size()))
+        samples = self.buffer.slice(0, count)
+        self.buffer = self.buffer.slice(count, self.buffer_size())
         return samples
 
     def buffer_size(self):
