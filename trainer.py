@@ -292,7 +292,7 @@ class RayDriftRegTrainer(RayPPOTrainer):
                         self._balance_batch(batch, metrics=metrics)
 
                     # compute global_valid tokens
-                    # batch.meta_info["global_token_num"] = torch.sum(batch.batch["attention_mask"], dim=-1).tolist()
+                    batch.meta_info["global_token_num"] = torch.sum(batch.batch["attention_mask"], dim=-1).tolist()
                          
                     with marked_timer("reward", timing_raw, color="yellow"):
                         # compute reward model score
@@ -385,6 +385,7 @@ class RayDriftRegTrainer(RayPPOTrainer):
                         buffer_batch = self.buffer_dataloader.get_next_batch()
                         buffer_batch: DataProto = DataProto.from_single_dict(buffer_batch)
                     else:
+                        self.buffer_dataloader.buffer.meta_info["global_token_num"] = batch.meta_info["global_token_num"]
                         buffer_batch = self.buffer_dataloader.get_from_buffer(len(batch.batch), size_divisor)
                     
                     all_keys = ["input_ids", "attention_mask", "position_ids", "responses", "response_mask"]
