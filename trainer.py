@@ -328,12 +328,9 @@ class RayDriftRegTrainer(RayPPOTrainer):
                         with marked_timer("ref", timing_raw, color="olive"):
                             if not self.ref_in_actor:
                                 ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
-                                buffer_ref_log_prob = self.ref_policy_wg.compute_ref_log_prob_buffer(batch)
                             else:
                                 ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob(batch)
-                                buffer_ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob_buffer(batch)
                             batch = batch.union(ref_log_prob)
-                            batch = batch.union(buffer_ref_log_prob)
                     # compute values
                     if self.use_critic:
                         with marked_timer("values", timing_raw, color="cyan"):
