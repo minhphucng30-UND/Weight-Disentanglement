@@ -394,7 +394,14 @@ class RayDriftRegTrainer(RayPPOTrainer):
                     
                     for key in all_keys:
                         batch.batch[f"buffer_{key}"] = buffer_batch.batch[key]
-                    
+
+                    with marked_timer("ref", timing_raw, color="olive"):
+                        if not self.ref_in_actor:
+                            buffer_ref_log_prob = self.ref_policy_wg.compute_ref_log_prob_buffer(batch)
+                        else:
+                            buffer_ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob_buffer(batch)
+                        batch = batch.union(buffer_ref_log_prob)
+                
                     # update critic
                     if self.use_critic:
                         with marked_timer("update_critic", timing_raw, color="pink"):
