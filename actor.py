@@ -275,7 +275,10 @@ class DriftRegActor(DataParallelPPOActor):
 
         data = data.select(batch_keys=select_keys, non_tensor_batch_keys=non_tensor_select_keys)
         new_select_keys = ["responses", "input_ids", "attention_mask", "position_ids"]
-        data = data.rename(old_keys=select_keys, new_keys=new_select_keys)
+        for key in new_select_keys:
+            data.batch[key] = data.batch.pop("buffer_" + key)
+        # data = data.rename(old_keys=select_keys, new_keys=new_select_keys)
+
 
         if use_dynamic_bsz:
             max_token_len = data.meta_info["max_token_len"] * self.ulysses_sequence_parallel_size
@@ -289,7 +292,7 @@ class DriftRegActor(DataParallelPPOActor):
             micro_batch = micro_batch.to(get_device_id())
             model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
             with torch.no_grad():
-                entropy, log_probs = self._forward_micro_batch_buffer(
+                entropy, log_probs = self._forward_micro_batch(
                     model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
                 )
             log_probs_lst.append(log_probs)
